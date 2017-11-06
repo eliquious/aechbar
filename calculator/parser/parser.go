@@ -1,9 +1,10 @@
-package main
+package parser
 
 import (
 	"strings"
 
 	"errors"
+	"github.com/eliquious/aechbar/calculator/ast"
 	"github.com/eliquious/lexer"
 	"io"
 )
@@ -21,12 +22,12 @@ func NewParser(r io.Reader) *Parser {
 	return &Parser{s: lexer.NewTokenBuffer(r)}
 }
 
-func ParseExpression(s string) (Expression, error) {
+func ParseExpression(s string) (ast.Expression, error) {
 	return NewParser(strings.NewReader(s)).ParseExpression()
 }
 
 // ParseExpression parses a string and returns a Expression AST object.
-func (p *Parser) ParseExpression() (Expression, error) {
+func (p *Parser) ParseExpression() (ast.Expression, error) {
 
 	// Inspect the first token.
 	tok, pos, lit := p.scanIgnoreWhitespace()

@@ -1,6 +1,8 @@
-package main
+package ast
 
 import (
+	"errors"
+	"fmt"
 	"github.com/eliquious/lexer"
 	"math/big"
 	"strconv"
@@ -95,6 +97,19 @@ type IntegerLiteral struct {
 func (e IntegerLiteral) Type() ExpressionType { return IntegerLiteralType }
 func (e IntegerLiteral) String() string       { return e.Value.String() }
 
+func (e IntegerLiteral) Add(expr Expression) (Expression, error) {
+	switch expr.Type() {
+	case IntegerLiteralType:
+		i := new(big.Int)
+		return &IntegerLiteral{i.Add(e.Value, expr.(*IntegerLiteral).Value)}, nil
+	case DecimalLiteralType:
+		f := new(big.Float).SetInt(e.Value)
+		return &DecimalLiteral{f.Add(f, expr.(*DecimalLiteral).Value)}, nil
+	default:
+		return nil, errors.New(fmt.Sprintf("Integer addition of type '%T' unsupported", expr.Type()))
+	}
+}
+
 // DecimalLiteral represents literal decimals
 type DecimalLiteral struct {
 	Value *big.Float
@@ -102,6 +117,19 @@ type DecimalLiteral struct {
 
 func (e DecimalLiteral) Type() ExpressionType { return DecimalLiteralType }
 func (e DecimalLiteral) String() string       { return e.Value.Text('E', 16) }
+
+func (e DecimalLiteral) Add(expr Expression) (Expression, error) {
+	switch expr.Type() {
+	case IntegerLiteralType:
+		f := new(big.Float).SetInt(expr.(*IntegerLiteral).Value)
+		return &DecimalLiteral{f.Add(f, e.Value)}, nil
+	case DecimalLiteralType:
+		f := new(big.Float)
+		return &DecimalLiteral{f.Add(e.Value, expr.(*DecimalLiteral).Value)}, nil
+	default:
+		return nil, errors.New(fmt.Sprintf("Decimal addition of type '%T' unsupported", expr.Type()))
+	}
+}
 
 // BooleanLiteral represents literal booleans
 type BooleanLiteral struct {

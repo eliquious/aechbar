@@ -1,12 +1,13 @@
-package main
+package eval
 
 import (
 	"errors"
+	"github.com/eliquious/aechbar/calculator/ast"
 	"github.com/eliquious/lexer"
 	"math/big"
 )
 
-func Evaluate(expr Expression) (string, error) {
+func Evaluate(expr ast.Expression) (string, error) {
 	exp, err := evalExpression(expr)
 	if err != nil {
 		return "", err
@@ -14,51 +15,51 @@ func Evaluate(expr Expression) (string, error) {
 	return exp.String(), nil
 }
 
-func evalExpression(expr Expression) (Expression, error) {
+func evalExpression(expr ast.Expression) (ast.Expression, error) {
 	switch expr.Type() {
-	case IntegerLiteralType, DecimalLiteralType,
-		StringLiteralType, DurationLiteralType,
-		TimestampLiteralType, BooleanLiteralType:
+	case ast.IntegerLiteralType, ast.DecimalLiteralType,
+		ast.StringLiteralType, ast.DurationLiteralType,
+		ast.TimestampLiteralType, ast.BooleanLiteralType:
 		return expr, nil
-	case UnaryExpressionType:
-		return evalUnaryExpression(expr.(*UnaryExpression))
-	case BinaryExpressionType:
-		return evalBinaryExpression(expr.(*BinaryExpression))
+	case ast.UnaryExpressionType:
+		return evalUnaryExpression(expr.(*ast.UnaryExpression))
+	case ast.BinaryExpressionType:
+		return evalBinaryExpression(expr.(*ast.BinaryExpression))
 	default:
 		return nil, errors.New("Unsupported expression")
 	}
 }
 
-func evalUnaryExpression(expr *UnaryExpression) (Expression, error) {
+func evalUnaryExpression(expr *ast.UnaryExpression) (ast.Expression, error) {
 	switch expr.Expr.Type() {
-	case IntegerLiteralType:
-		return evalUnaryIntegerExpression(expr.Op, expr.Expr.(*IntegerLiteral))
-	case DecimalLiteralType:
-		return evalUnaryDecimalExpression(expr.Op, expr.Expr.(*DecimalLiteral))
+	case ast.IntegerLiteralType:
+		return evalUnaryIntegerExpression(expr.Op, expr.Expr.(*ast.IntegerLiteral))
+	case ast.DecimalLiteralType:
+		return evalUnaryDecimalExpression(expr.Op, expr.Expr.(*ast.DecimalLiteral))
 	default:
 		return nil, errors.New("Unsupported unary expression")
 	}
 }
 
-func evalUnaryIntegerExpression(op lexer.Token, expr *IntegerLiteral) (Expression, error) {
+func evalUnaryIntegerExpression(op lexer.Token, expr *ast.IntegerLiteral) (ast.Expression, error) {
 	if op == lexer.MINUSMINUS {
-		return &IntegerLiteral{expr.Value.Add(expr.Value, big.NewInt(-1))}, nil
+		return &ast.IntegerLiteral{expr.Value.Add(expr.Value, big.NewInt(-1))}, nil
 	} else if op == lexer.PLUSPLUS {
-		return &IntegerLiteral{expr.Value.Add(expr.Value, big.NewInt(1))}, nil
+		return &ast.IntegerLiteral{expr.Value.Add(expr.Value, big.NewInt(1))}, nil
 	}
 	return nil, errors.New("Unsupported integer unary expression")
 }
 
-func evalUnaryDecimalExpression(op lexer.Token, expr *DecimalLiteral) (Expression, error) {
+func evalUnaryDecimalExpression(op lexer.Token, expr *ast.DecimalLiteral) (ast.Expression, error) {
 	if op == lexer.MINUSMINUS {
-		return &DecimalLiteral{expr.Value.Add(expr.Value, big.NewFloat(-1))}, nil
+		return &ast.DecimalLiteral{expr.Value.Add(expr.Value, big.NewFloat(-1))}, nil
 	} else if op == lexer.PLUSPLUS {
-		return &DecimalLiteral{expr.Value.Add(expr.Value, big.NewFloat(1))}, nil
+		return &ast.DecimalLiteral{expr.Value.Add(expr.Value, big.NewFloat(1))}, nil
 	}
 	return nil, errors.New("Unsupported decimal unary expression")
 }
 
-func evalBinaryExpression(expr *BinaryExpression) (Expression, error) {
+func evalBinaryExpression(expr *ast.BinaryExpression) (ast.Expression, error) {
 	// Reduce the binary expression to it's lowest parts
 	exp, err := reduceBinaryExpression(expr)
 	if err != nil {
@@ -77,7 +78,7 @@ func evalBinaryExpression(expr *BinaryExpression) (Expression, error) {
 	}
 }
 
-func evalBinaryMathExpression(expr *BinaryExpression) (Expression, error) {
+func evalBinaryMathExpression(expr *ast.BinaryExpression) (ast.Expression, error) {
 	switch expr.Op {
 	case lexer.PLUS:
 		return evalPlusExpression(expr)
@@ -94,7 +95,7 @@ func evalBinaryMathExpression(expr *BinaryExpression) (Expression, error) {
 	}
 }
 
-func evalBinaryBooleanExpression(expr *BinaryExpression) (Expression, error) {
+func evalBinaryBooleanExpression(expr *ast.BinaryExpression) (ast.Expression, error) {
 	switch expr.Op {
 	case lexer.AND:
 	case lexer.OR:
@@ -110,7 +111,7 @@ func evalBinaryBooleanExpression(expr *BinaryExpression) (Expression, error) {
 	return nil, errors.New("Unsupported boolean expression")
 }
 
-func evalBinaryBitwiseExpression(expr *BinaryExpression) (Expression, error) {
+func evalBinaryBitwiseExpression(expr *ast.BinaryExpression) (ast.Expression, error) {
 	switch expr.Op {
 	case lexer.AMPERSAND:
 	case lexer.XOR:
@@ -123,7 +124,7 @@ func evalBinaryBitwiseExpression(expr *BinaryExpression) (Expression, error) {
 	return nil, errors.New("Unsupported boolean expression")
 }
 
-func reduceBinaryExpression(expr *BinaryExpression) (*BinaryExpression, error) {
+func reduceBinaryExpression(expr *ast.BinaryExpression) (*ast.BinaryExpression, error) {
 
 	// Eval left hand side
 	lh, err := evalExpression(expr.LExpr)
@@ -136,5 +137,5 @@ func reduceBinaryExpression(expr *BinaryExpression) (*BinaryExpression, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &BinaryExpression{expr.Op, lh, rh}, nil
+	return &ast.BinaryExpression{expr.Op, lh, rh}, nil
 }

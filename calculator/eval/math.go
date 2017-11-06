@@ -1,21 +1,22 @@
-package main
+package eval
 
 import (
 	"errors"
 	"fmt"
+	"github.com/eliquious/aechbar/calculator/ast"
 	"github.com/eliquious/lexer"
-	"math/big"
+	// "math/big"
 )
 
-func evalPlusExpression(expr *BinaryExpression) (Expression, error) {
+func evalPlusExpression(expr *ast.BinaryExpression) (ast.Expression, error) {
 	if expr.Op != lexer.PLUS {
 		return nil, errors.New("Expected PLUS operand")
 	}
 
-	if add, ok := lh.(AddExpression); ok {
-		return add.Add(rh)
+	if add, ok := expr.LExpr.(ast.AddExpression); ok {
+		return add.Add(expr.RExpr)
 	}
-	return nil, errors.New(fmt.Sprintf("PLUS operand not supported for %T and %T", lh, rh))
+	return nil, errors.New(fmt.Sprintf("PLUS operand not supported for %T and %T", expr.LExpr, expr.RExpr))
 
 	// if lh.Type() == IntegerLiteralType && rh.Type() == IntegerLiteralType {
 	// 	i := new(big.Int)
@@ -38,46 +39,46 @@ func evalPlusExpression(expr *BinaryExpression) (Expression, error) {
 	// }
 }
 
-func evalMinusExpression(expr *BinaryExpression) (Expression, error) {
+func evalMinusExpression(expr *ast.BinaryExpression) (ast.Expression, error) {
 	if expr.Op != lexer.MINUS {
 		return nil, errors.New("Expected MINUS operand")
 	}
 
-	if e, ok := lh.(SubExpression); ok {
-		return e.Sub(rh)
+	if e, ok := expr.LExpr.(ast.SubExpression); ok {
+		return e.Sub(expr.RExpr)
 	}
-	return nil, errors.New(fmt.Sprintf("MINUS operand not supported for %T and %T", lh, rh))
+	return nil, errors.New(fmt.Sprintf("MINUS operand not supported for %T and %T", expr.LExpr, expr.RExpr))
 }
 
-func evalMultExpression(expr *BinaryExpression) (Expression, error) {
+func evalMultExpression(expr *ast.BinaryExpression) (ast.Expression, error) {
 	if expr.Op != lexer.MUL {
 		return nil, errors.New("Expected MUL operand")
 	}
 
-	if e, ok := lh.(MultExpression); ok {
-		return e.Mult(rh)
+	if e, ok := expr.LExpr.(ast.MultExpression); ok {
+		return e.Mult(expr.RExpr)
 	}
-	return nil, errors.New(fmt.Sprintf("MUL operand not supported for %T and %T", lh, rh))
+	return nil, errors.New(fmt.Sprintf("MUL operand not supported for %T and %T", expr.LExpr, expr.RExpr))
 }
 
-func evalDivExpression(expr *BinaryExpression) (Expression, error) {
+func evalDivExpression(expr *ast.BinaryExpression) (ast.Expression, error) {
 	if expr.Op != lexer.DIV {
 		return nil, errors.New("Expected DIV operand")
 	}
 
-	if e, ok := lh.(DivExpression); ok {
-		return e.Div(rh)
+	if e, ok := expr.LExpr.(ast.DivExpression); ok {
+		return e.Div(expr.RExpr)
 	}
-	return nil, errors.New(fmt.Sprintf("DIV operand not supported for %T and %T", lh, rh))
+	return nil, errors.New(fmt.Sprintf("DIV operand not supported for %T and %T", expr.LExpr, expr.RExpr))
 }
 
-func evalPowExpression(expr *BinaryExpression) (Expression, error) {
+func evalPowExpression(expr *ast.BinaryExpression) (ast.Expression, error) {
 	if expr.Op != lexer.POW {
 		return nil, errors.New("Expected POW operand")
 	}
 
-	if e, ok := lh.(PowExpression); ok {
-		return e.Pow(rh)
+	if e, ok := expr.LExpr.(ast.PowExpression); ok {
+		return e.Pow(expr.RExpr)
 	}
-	return nil, errors.New(fmt.Sprintf("Pow operand not supported for %T and %T", lh, rh))
+	return nil, errors.New(fmt.Sprintf("Pow operand not supported for %T and %T", expr.LExpr, expr.RExpr))
 }

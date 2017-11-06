@@ -1,4 +1,4 @@
-package main
+package parser
 
 import (
 	"fmt"
@@ -6,27 +6,6 @@ import (
 
 	"github.com/eliquious/lexer"
 )
-
-type StatusCode int
-
-// Success codes
-const (
-	OK StatusCode = iota + 2000
-)
-
-// Error codes
-const (
-	InternalServerError StatusCode = iota + 5000
-)
-
-var statusCodes = map[StatusCode]string{
-
-	// Success
-	OK: "OK",
-
-	// General errors
-	InternalServerError: "InternalServerError",
-}
 
 // ParseError represents an error that occurred during parsing.
 type ParseError struct {

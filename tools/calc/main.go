@@ -4,9 +4,11 @@ import (
 	// "fmt"
 	"bytes"
 	"flag"
-	"io"
-	// "github.com/eliquious/lexer"
+	// "github.com/eliquious/aechbar/calculator/ast"
+	"github.com/eliquious/aechbar/calculator/eval"
+	"github.com/eliquious/aechbar/calculator/parser"
 	"github.com/subsilent/crypto/ssh/terminal"
+	"io"
 	"os"
 )
 
@@ -15,15 +17,15 @@ var debug = flag.Bool("debug", false, "Enable debug logging")
 const PROMPT = "\xc4\xa7 >>> "
 
 func main() {
-	oldState, err := terminal.MakeRaw(0)
-	if err != nil {
-		panic(err)
-	}
-	defer terminal.Restore(0, oldState)
+	// oldState, err := terminal.MakeRaw(0)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// defer terminal.Restore(0, oldState)
 
 	// var scanner *lexer.Scanner
 	var inputBuffer bytes.Buffer
-	parser := NewParser(&inputBuffer)
+	p := parser.NewParser(&inputBuffer)
 
 	rw := ReadWriter{os.Stdin, os.Stdout}
 	term := terminal.NewTerminal(rw, PROMPT)
@@ -46,11 +48,11 @@ func main() {
 
 		inputBuffer.WriteString(line)
 		for {
-			expr, err := parser.ParseExpression()
+			expr, err := p.ParseExpression()
 			if err != nil {
-				if err == EOL {
+				if err == parser.EOL {
 					continue
-				} else if err == EOF {
+				} else if err == parser.EOF {
 					break
 				}
 				resp.Write(resp.Colors.Red)
@@ -59,7 +61,7 @@ func main() {
 			} else if expr != nil {
 
 				// TODO: Evaluate Expression
-				result, err := Evaluate(expr)
+				result, err := eval.Evaluate(expr)
 				if err != nil {
 					resp.Write(resp.Colors.Red)
 					resp.Write([]byte(err.Error() + "\n"))
