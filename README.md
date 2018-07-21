@@ -1,3 +1,5 @@
+Finished: Not even close. Used github.com/fetacore/Infinitex instead of writing my own.
+
 
 # Aechbar
 
