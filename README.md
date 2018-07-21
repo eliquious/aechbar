@@ -1,4 +1,4 @@
-Finished: Not even close. Used github.com/fetacore/Infinitex instead of writing my own.
+Finished: Not even close. Used [github.com/fetacore/Infinitex](https://github.com/fetacore/Infinitex) instead of writing my own.
 
 
 # Aechbar
